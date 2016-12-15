@@ -16,7 +16,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace kurema
+namespace kurema.RhinoTools
 {
     public class LSystem
     {

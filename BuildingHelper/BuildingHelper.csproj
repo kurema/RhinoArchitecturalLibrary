@@ -46,8 +46,10 @@
   <ItemGroup>
     <Compile Include="BuildingObject.cs" />
     <Compile Include="CellObject.cs" />
+    <Compile Include="Expression.cs" />
     <Compile Include="GeneralHelper.cs" />
     <Compile Include="LSystem.cs" />
+    <Compile Include="Optimization.cs" />
     <Compile Include="PanelBuilder.cs" />
     <Compile Include="PlanObject.cs" />
     <Compile Include="RealObject.cs" />
@@ -56,6 +58,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>cd ..\..\script
+script.bat</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
