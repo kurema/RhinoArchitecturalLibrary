@@ -21,13 +21,34 @@ using System.Xml.Serialization;
 
 namespace kurema.RhinoTools
 {
+    /// <summary>
+    /// プレゼンテーション用のパネルを示します。
+    /// 余り恰好は良くないので非推奨です。
+    /// </summary>
     public class PanelBuilder
     {
+        /// <summary>
+        /// 出力先のドキュメント
+        /// </summary>
         public Rhino.RhinoDoc Document;
+        /// <summary>
+        /// ランダムインスタンス
+        /// </summary>
         public Random Rand;
+        /// <summary>
+        /// 画像などを出力するディレクトリ
+        /// </summary>
         public string CurrentDirectory;
+        /// <summary>
+        /// 現在のレイヤー番号
+        /// </summary>
         public int CurrentLayer = 0;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="Doc">出力先のドキュメント</param>
+        /// <param name="currentDirectory">画像などを出力するディレクトリ</param>
         public PanelBuilder(RhinoDoc Doc, string currentDirectory)
         {
             Document = Doc;
@@ -35,6 +56,12 @@ namespace kurema.RhinoTools
             this.CurrentDirectory = currentDirectory;
         }
 
+        /// <summary>
+        /// モデルに3Dモデルを追加します。
+        /// </summary>
+        /// <param name="name">モデル名</param>
+        /// <param name="col">色</param>
+        /// <param name="content">Brep</param>
         public void Add(string name, Color col, params Brep[] content)
         {
             int layerIndex = Document.Layers.Add(name, System.Drawing.Color.Black);
@@ -56,16 +83,31 @@ namespace kurema.RhinoTools
             }
         }
 
+        /// <summary>
+        /// ISO 216のAシリーズの紙を追加します。
+        /// </summary>
+        /// <param name="a">番号(Anのn)</param>
+        /// <param name="Landscape">向き(trueで横向き)</param>
         public void AddPaperSizeA(int a, bool Landscape)
         {
             AddPaperSizeA(a, Landscape, Color.White);
         }
 
+        /// <summary>
+        /// ISO 216のAシリーズの紙を追加します。
+        /// </summary>
+        /// <param name="a">番号(Anのn)</param>
+        /// <param name="Landscape">向き(trueで横向き)</param>
+        /// <param name="col">紙の色</param>
         public void AddPaperSizeA(int a, bool Landscape, Color col)
         {
             this.Add("Paper:A" + a, col, Providers.GetPaperSizeA(a, Landscape));
         }
 
+        /// <summary>
+        /// 指定座標に押しピンを刺します。
+        /// </summary>
+        /// <param name="point">座標</param>
         public void Pin(Point2d point)
         {
             RealObject.Building pin = Providers.GetThumbtack();
@@ -80,7 +122,13 @@ namespace kurema.RhinoTools
             pin.Bake(Document);
         }
 
-
+        /// <summary>
+        /// 色付きの紙を追加します。
+        /// </summary>
+        /// <param name="col">色</param>
+        /// <param name="point">追加場所</param>
+        /// <param name="width">幅</param>
+        /// <param name="height">高さ</param>
         public void AddColorPaper(Color col, Point2d point, double width, double height)
         {
             Brep paper = Brep.CreatePlanarBreps(new Rectangle3d(new Plane(new Point3d(point.X, -0.5, point.Y), Vector3d.XAxis, Vector3d.ZAxis), width, height).ToNurbsCurve())[0];
@@ -98,6 +146,14 @@ namespace kurema.RhinoTools
             Document.Objects.AddBrep(paper, oba);
         }
 
+        /// <summary>
+        /// 3D文字を追加します。
+        /// </summary>
+        /// <param name="text">文字</param>
+        /// <param name="height">高さ</param>
+        /// <param name="thickness">太さ</param>
+        /// <param name="point">配置場所</param>
+        /// <param name="cl">色</param>
         public void AddText3d(string text, double height, double thickness, Point2d point, Color cl)
         {
             Brep[] texts = Providers.GetTextBrep(text, height, thickness);
@@ -105,6 +161,15 @@ namespace kurema.RhinoTools
             texts = GeneralHelper.TranslateBreps(texts, new Point3d(point.X, 0, point.Y));
             this.Add("Text3d", cl, texts);
         }
+        /// <summary>
+        /// 3D文字を追加します。
+        /// </summary>
+        /// <param name="text">文字</param>
+        /// <param name="height">高さ</param>
+        /// <param name="thickness">厚さ</param>
+        /// <param name="point">配置場所</param>
+        /// <param name="cl">色</param>
+        /// <param name="fontname">フォント名</param>
         public void AddText3d(string text, double height, double thickness, Point2d point, Color cl, string fontname)
         {
             Brep[] texts = Providers.GetTextBrep(text, height, thickness, fontname, false, false, this.Document);
@@ -113,6 +178,12 @@ namespace kurema.RhinoTools
             this.Add("Text3d", cl, texts);
         }
 
+        /// <summary>
+        /// 写真を追加します。
+        /// </summary>
+        /// <param name="url">写真のアドレス</param>
+        /// <param name="dpi">解像度。dpiで指定。72が標準的です。</param>
+        /// <param name="point">配置場所</param>
         public void AddPhoto(string url, double dpi, Point2d point)
         {
             System.Drawing.Bitmap bmp = new Bitmap(url);
@@ -140,11 +211,22 @@ namespace kurema.RhinoTools
             CurrentLayer++;
         }
 
+        /// <summary>
+        /// XMLで設定されたレイアウト設定付きのテキストを追加します。
+        /// </summary>
+        /// <param name="url">XMLのアドレス</param>
+        /// <param name="point">配置場所</param>
         public void AddTextXml(string url, Point2d point)
         {
             AddTextXml(Generator.ReadTextXml(url), System.IO.Path.GetFileNameWithoutExtension(url), point);
         }
 
+        /// <summary>
+        /// XMLで設定されたレイアウト設定付きのテキストを追加します。
+        /// </summary>
+        /// <param name="xmlobj">XMLのアドレス</param>
+        /// <param name="filename">画像ファイル名</param>
+        /// <param name="point">配置場所</param>
         public void AddTextXml(Schemas.text xmlobj, string filename, Point2d point)
         {
             double scale = 5.0;
@@ -156,11 +238,24 @@ namespace kurema.RhinoTools
             this.AddPhoto(fn, 72 * scale, point);
         }
 
+        /// <summary>
+        /// 一時画像フォルダが保存される場所を取得します。
+        /// </summary>
+        /// <param name="filename">元ファイル名</param>
+        /// <returns>保存先</returns>
         public string GetImageSavePath(string filename)
         {
             return CurrentDirectory + @"\Texture\" + filename + ".png";
         }
 
+        /// <summary>
+        /// タイトル付き画像を追加します
+        /// </summary>
+        /// <param name="head">タイトル</param>
+        /// <param name="Content">内容</param>
+        /// <param name="width">幅</param>
+        /// <param name="height">高さ</param>
+        /// <param name="point">場所</param>
         public void AddText(string head, string Content, double width, double height, Point2d point)
         {
             Schemas.text txt = new Schemas.text();
@@ -182,11 +277,31 @@ namespace kurema.RhinoTools
             AddTextXml(txt, Rand.Next(0, (int)1e5).ToString(), point);
         }
 
+        /// <summary>
+        /// 文字のみが記された紙を追加します。
+        /// </summary>
+        /// <param name="text">内容</param>
+        /// <param name="fontname">フォント名</param>
+        /// <param name="fontsize">フォントサイズ</param>
+        /// <param name="point">配置場所</param>
+        /// <param name="marginh">水平方向の余白</param>
+        /// <param name="marginv">垂直方向の余白</param>
         public void AddTextSimple(string text, string fontname, float fontsize, Point2d point, double marginh, double marginv)
         {
             AddTextSimple(text, fontname, fontsize, new FontStyle(), point, marginh, marginv, Color.White, Color.Black);
         }
 
+        /// <summary>
+        /// 文字のみが記された紙を追加します。
+        /// </summary>
+        /// <param name="text">内容</param>
+        /// <param name="fontname">フォント名</param>
+        /// <param name="fontsize">フォントサイズ</param>
+        /// <param name="point">配置場所</param>
+        /// <param name="marginh">水平方向の余白</param>
+        /// <param name="marginv">垂直方向の余白</param>
+        /// <param name="Background">背景色</param>
+        /// <param name="ForeGround">文字色</param>
         public void AddTextSimple(string text, string fontname, float fontsize, FontStyle fs, Point2d point, double marginh, double marginv, Color Background, Color ForeGround)
         {
             float scale = 5;
@@ -219,7 +334,17 @@ namespace kurema.RhinoTools
             oba.MaterialSource = ObjectMaterialSource.MaterialFromObject;
             Document.Objects.AddBrep(paper, oba);
         }
-
+        /// <summary>
+        /// タグを追加できます。
+        /// </summary>
+        /// <param name="text">文字</param>
+        /// <param name="fontname">フォント名</param>
+        /// <param name="fontSize">フォントサイズ</param>
+        /// <param name="width">幅</param>
+        /// <param name="height">高さ</param>
+        /// <param name="cl">色</param>
+        /// <param name="point">配置場所</param>
+        /// <param name="yvalue">奥行</param>
         public void AddTag(string text, string fontname, double fontSize, double width, double height, Color cl, Point2d point, double yvalue)
         {
             Curve cv = Curve.JoinCurves(new Curve[] { new Line(0, 0, 0, width / 2.5, 0, 0).ToNurbsCurve(), new Arc(new Point3d(width / 2.5, 0, 0), Vector3d.XAxis, new Point3d(width, -10, 0)).ToNurbsCurve() })[0];
@@ -262,7 +387,9 @@ namespace kurema.RhinoTools
         }
 
 
-
+        /// <summary>
+        /// XMLに対応するオブジェクト
+        /// </summary>
         public class Schemas
         {
             /// <remarks/>
@@ -663,8 +790,16 @@ namespace kurema.RhinoTools
 
         }
 
+        /// <summary>
+        /// 関連する機能を含みます。
+        /// </summary>
         public class Generator
         {
+            /// <summary>
+            /// XMLファイルをデシリアライズします。
+            /// </summary>
+            /// <param name="fileName">ファイル名</param>
+            /// <returns>相当するオブジェクト</returns>
             public static Schemas.text ReadTextXml(string fileName)
             {
                 System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(typeof(Schemas.text));
@@ -674,6 +809,12 @@ namespace kurema.RhinoTools
                 return text;
             }
 
+            /// <summary>
+            /// レイアウト設定付きの文字を画像化します。
+            /// </summary>
+            /// <param name="text">文字に相当するインスタンス</param>
+            /// <param name="zoom">拡大率</param>
+            /// <returns>画像</returns>
             public static Bitmap CreateTextBitmap(Schemas.text text, double zoom = 1.0)
             {
 

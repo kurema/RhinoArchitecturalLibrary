@@ -18,24 +18,58 @@ using System.Runtime.InteropServices;
 
 namespace kurema.RhinoTools
 {
+    /// <summary>
+    /// 簡単なIKに関する機能を含みます。
+    /// </summary>
     public class GraphObject
     {
+        /// <summary>
+        /// ボーンを示します。
+        /// </summary>
         public class Path
         {
+            /// <summary>
+            /// 名前
+            /// </summary>
             public string Name { get { return ContentMember.ToString(); } set { ContentMember.SetName(value); } }
+            /// <summary>
+            /// ボーンに含まれる部材です。
+            /// </summary>
             public RealObject.Member ContentMember;
+            /// <summary>
+            /// ボーンの長さです。
+            /// </summary>
             public double Length;
 
+            /// <summary>
+            /// 距離と半径の組み合わせからパイプによるボーンを作ります。
+            /// </summary>
+            /// <param name="Distance">距離</param>
+            /// <param name="Radius">半径</param>
+            /// <returns>ボーン</returns>
             public static Path CreateFromPipeSimple(double[] Distance, double[] Radius)
             {
                 return new Path() { ContentMember = new Brep[] { Providers.GetPipeSimple(Distance, Radius) }, Length = Distance[Distance.GetLength(0) - 1] - Distance[0] };
             }
 
+            /// <summary>
+            /// 距離と半径の組み合わせから片方が閉じた形状のボーンを作ります。
+            /// </summary>
+            /// <param name="Distance">距離</param>
+            /// <param name="Radius">半径</param>
+            /// <returns>ボーン</returns>
             public static Path CreateFromPipeHead(double[] Distance, double[] Radius)
             {
                 return new Path() { ContentMember = new Brep[] { Providers.GetPipeHead(Distance, Radius) }, Length = Distance[Distance.GetLength(0) - 1] - Distance[0] };
             }
 
+            /// <summary>
+            /// 多角形柱のボーンを作ります。
+            /// </summary>
+            /// <param name="count">n角形におけるn</param>
+            /// <param name="Radius">半径</param>
+            /// <param name="Height">高さ</param>
+            /// <returns>ボーン</returns>
             public static Path CreateFromRegularPolygonTower(int count, double Radius, double Height)
             {
                 Brep bp = Providers.GetRegularPolygonTower(count, Radius, Height, true);
@@ -44,28 +78,75 @@ namespace kurema.RhinoTools
             }
         }
 
+        /// <summary>
+        /// 関節を示します。
+        /// </summary>
         public class Node
         {
+            /// <summary>
+            /// 名前
+            /// </summary>
             public string Name { get { return ContentMember.ToString(); } set { ContentMember.SetName(value); } }
+            /// <summary>
+            /// 関節につながるボーン1
+            /// </summary>
             public Path Target1;
+            /// <summary>
+            /// 関節につながるボーン2
+            /// </summary>
             public Path Target2;
+            /// <summary>
+            /// ボーン1のつながるボーン内の場所
+            /// </summary>
             public Point3d Target1ConnectionPoint = new Point3d(0, 0, 0);
+            /// <summary>
+            /// ボーン2のつながるボーン内の場所
+            /// </summary>
             public Point3d Target2ConnectionPoint = new Point3d(0, 0, 0);
+            /// <summary>
+            /// 関節の半径
+            /// </summary>
             public double Radius;
+            /// <summary>
+            /// 関節に含まれる部材
+            /// </summary>
             public RealObject.Member ContentMember;
-
+            
+            /// <summary>
+            /// X方向の回転角
+            /// </summary>
             public double RotationAngleX { get { return _RotationAngleX; } set { _RotationAngleX = Math.Max(RotationAngleXLimitation.Min, Math.Min(RotationAngleXLimitation.Max, value % (Math.PI * 2.0))); } }
             private double _RotationAngleX = 0;
+            /// <summary>
+            /// X方向の回転可能範囲
+            /// </summary>
             public Interval RotationAngleXLimitation = new Interval(0, Math.PI * 2.0);
 
+            /// <summary>
+            /// Y方向の回転角
+            /// </summary>
             public double RotationAngleY { get { return _RotationAngleY; } set { _RotationAngleY = Math.Max(RotationAngleYLimitation.Min, Math.Min(RotationAngleYLimitation.Max, value % (Math.PI * 2.0))); } }
             private double _RotationAngleY = 0;
+            /// <summary>
+            /// Y方向の回転可能範囲
+            /// </summary>
             public Interval RotationAngleYLimitation = new Interval(0, Math.PI * 2.0);
 
+            /// <summary>
+            /// Z方向の回転角
+            /// </summary>
             public double RotationAngleZ { get { return _RotationAngleZ; } set { _RotationAngleZ = Math.Max(RotationAngleZLimitation.Min, Math.Min(RotationAngleZLimitation.Max, value % (Math.PI * 2.0))); } }
             private double _RotationAngleZ = 0;
+            /// <summary>
+            /// Z方向の回転可能範囲
+            /// </summary>
             public Interval RotationAngleZLimitation = new Interval(0, Math.PI * 2.0);
 
+            /// <summary>
+            /// 二つのボーンの内、指定値と違う方を取得する。
+            /// </summary>
+            /// <param name="that">指定ボーン</param>
+            /// <returns>異なる方のボーン</returns>
             public Path GetPathOtherThan(Path that)
             {
                 if (that == Target1) { return Target2; }
@@ -73,6 +154,11 @@ namespace kurema.RhinoTools
                 else { return new Path(); }
             }
 
+            /// <summary>
+            /// 指定したボーンの接続点を取得します。
+            /// </summary>
+            /// <param name="that">指定ボーン</param>
+            /// <returns>接続点</returns>
             public Point3d GetConnectionPoint(Path that)
             {
                 if (that == Target1) { return new Point3d(Target1ConnectionPoint); }
@@ -80,6 +166,12 @@ namespace kurema.RhinoTools
                 else { return new Point3d(0, 0, 0); }
             }
 
+            /// <summary>
+            /// 球から関節を作ります。
+            /// </summary>
+            /// <param name="rad">半径</param>
+            /// <param name="len">長さ</param>
+            /// <returns>関節</returns>
             public static Node CreateFromSphere(double rad, double len)
             {
                 if (len > 0)
@@ -93,17 +185,37 @@ namespace kurema.RhinoTools
             }
         }
 
+        /// <summary>
+        /// IKモデル
+        /// </summary>
         public class Graph
         {
+            /// <summary>
+            /// 基底ボーン。これに長さ0のボーンを設定すると関節を基底として根元から回転できるようになります。
+            /// </summary>
             public Path RootPath;//You can set this length to zero to set Node as root.
             private Dictionary<Path, List<Node>> NodesDic = new Dictionary<Path, List<Node>>();
+            /// <summary>
+            /// 配置場所
+            /// </summary>
             public Point3d Position;
+            /// <summary>
+            /// X方向の回転角
+            /// </summary>
             public double RotationAngleX = 0;
+            /// <summary>
+            /// Y方向の回転角
+            /// </summary>
             public double RotationAngleY = 0;
+            /// <summary>
+            /// Z方向の回転角
+            /// </summary>
             public double RotationAngleZ = 0;
             public double AddScale = 1.0;
 
-
+            /// <summary>
+            /// モデルに含まれるボーン
+            /// </summary>
             public Path[] Paths
             {
                 get
@@ -121,6 +233,9 @@ namespace kurema.RhinoTools
                     return Result.ToArray();
                 }
             }
+            /// <summary>
+            /// モデルに含まれる関数
+            /// </summary>
             public Node[] Nodes
             {
                 get
@@ -137,16 +252,37 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// 既存のボーンに新規ボーンを接続します。
+            /// </summary>
+            /// <param name="PathToConnect">接続するボーン</param>
+            /// <param name="PathToAdd">新規ボーン</param>
+            /// <returns>接続する関節</returns>
             public Node Add(Path PathToConnect, Path PathToAdd)
             {
                 return Add(PathToConnect, new Point3d(PathToConnect.Length / AddScale, 0, 0), PathToAdd, new Node() { ContentMember = new Brep[0], Radius = 0 });
             }
-
+            /// <summary>
+            /// 既存のボーンに新規ボーンを接続します。
+            /// </summary>
+            /// <param name="PathToConnect">接続するボーン</param>
+            /// <param name="PathToAdd">新規ボーン</param>
+            /// <param name="rad">半径</param>
+            /// <param name="len">新規ボーンの長さ</param>
+            /// <returns>接続された関節</returns>
             public Node Add(Path PathToConnect, Path PathToAdd, double rad, double len)
             {
                 return Add(PathToConnect, new Point3d(PathToConnect.Length / AddScale, 0, 0), PathToAdd, Node.CreateFromSphere(rad, len));
             }
 
+            /// <summary>
+            /// 既存の関節に新規ボーンを接続します。
+            /// </summary>
+            /// <param name="PathToConnect">接続するボーン</param>
+            /// <param name="ConnectionPoint">接続する点</param>
+            /// <param name="PathToAdd">新規ボーン</param>
+            /// <param name="node">接続する関節</param>
+            /// <returns>接続された関節</returns>
             public Node Add(Path PathToConnect, Point3d ConnectionPoint, Path PathToAdd, Node node)
             {
                 node.Target1 = PathToConnect;
@@ -178,12 +314,18 @@ namespace kurema.RhinoTools
                 return node;
             }
 
+            /// <summary>
+            /// 関節をランダムに動かす。
+            /// </summary>
             public void MoveRandom()
             {
                 MoveRandom(new Random());
             }
 
-
+            /// <summary>
+            /// 関節をランダムに動かす。
+            /// </summary>
+            /// <param name="rd">乱数の種</param>
             public void MoveRandom(Random rd)
             {
                 foreach (Node nd in Nodes)
@@ -194,16 +336,34 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            /// <param name="Root">基底のボーン</param>
+            /// <param name="Position">座標</param>
             public Graph(Path Root, Point3d Position)
                 : this(Root, Position, false)
             {
             }
 
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            /// <param name="Root">基底のボーン</param>
+            /// <param name="ObjectPosition">配置場所</param>
+            /// <param name="CanRootMoveFreely">基底ボーンが自由に動けるか</param>
             public Graph(Path Root, Point3d ObjectPosition, bool CanRootMoveFreely)
                 : this(Root, ObjectPosition, CanRootMoveFreely, 1.0)
             {
             }
 
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            /// <param name="Root">基底のボーン</param>
+            /// <param name="ObjectPosition">配置場所</param>
+            /// <param name="CanRootMoveFreely">基底ボーンが自由に動けるか</param>
+            /// <param name="Scale">拡大率</param>
             public Graph(Path Root, Point3d ObjectPosition, bool CanRootMoveFreely, double Scale)
             {
                 this.AddScale = Scale;
@@ -231,6 +391,10 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// 3Dモデル(Brep)を取得します。
+            /// </summary>
+            /// <returns>3Dモデル</returns>
             public Brep[] GetBrep()
             {
                 Plane newpl = Plane.WorldXY;
@@ -332,6 +496,10 @@ namespace kurema.RhinoTools
                 return Result;
             }
 
+            /// <summary>
+            /// 3Dモデル(RealObject.Building)を取得します。
+            /// </summary>
+            /// <returns>3Dモデル</returns>
             public RealObject.Building GetMember()
             {
                 RealObject.Building Result = new RealObject.Building("Graph");
@@ -386,7 +554,11 @@ namespace kurema.RhinoTools
                 return Result;
             }
 
-
+            /// <summary>
+            /// デッサン人形風のIKモデルを取得します。添景として利用できます。
+            /// </summary>
+            /// <param name="Height">高さ</param>
+            /// <returns>IKモデル</returns>
             public static Graph GetHumanBody(double Height)
             {
                 Graph Result = new Graph(Path.CreateFromPipeSimple(new double[] { 0, 15, 30 }, new double[] { 20, 20, 15 }), new Point3d(0, 0, 165), false, Height / 260.0);
@@ -476,7 +648,6 @@ namespace kurema.RhinoTools
                 return Result;
 
             }
-
         }
     }
 }

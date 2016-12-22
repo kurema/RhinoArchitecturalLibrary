@@ -18,8 +18,18 @@ using System.Runtime.InteropServices;
 
 namespace kurema.RhinoTools
 {
+    /// <summary>
+    /// 建築などに関係する機能を多数含みます。
+    /// </summary>
     public static class Providers
     {
+        /// <summary>
+        /// 四角形を線として取得します。
+        /// </summary>
+        /// <param name="p">開始点</param>
+        /// <param name="Width">幅</param>
+        /// <param name="Height">高さ</param>
+        /// <returns>結果</returns>
         public static Curve GetRectangle3d(Point3d p, double Width, double Height)
         {
             Polyline pl = new Polyline();
@@ -31,6 +41,12 @@ namespace kurema.RhinoTools
             return pl.ToNurbsCurve();
         }
 
+        /// <summary>
+        /// ISO 216のAシリーズの四角形を取得します。
+        /// </summary>
+        /// <param name="i">番号(Anのn)</param>
+        /// <param name="Landscape">向き(trueで横向き)</param>
+        /// <returns>結果</returns>
         public static Brep GetPaperSizeA(int i, bool Landscape)
         {
             double width = 1189 * Math.Pow(2.0, -i / 2.0);
@@ -39,9 +55,13 @@ namespace kurema.RhinoTools
             return Brep.CreatePlanarBreps(new Rectangle3d(Plane.WorldZX, height, width).ToNurbsCurve())[0];
         }
 
+        /// <summary>
+        /// 画鋲を取得します。
+        /// </summary>
+        /// <returns>画鋲</returns>
         public static RealObject.Building GetThumbtack()
         {
-            RealObject.Building result = new RealObject.Building("Thumback");
+            RealObject.Building result = new RealObject.Building("Thumbtack");
             Polyline pl = new Polyline(3);
             pl.Add(5, 0, 0.5);
             pl.Add(-7.5, 0, 0.5);
@@ -70,6 +90,12 @@ namespace kurema.RhinoTools
             return result;
         }
 
+        /// <summary>
+        /// コッホ曲線を取得します。
+        /// </summary>
+        /// <param name="Angle">角度</param>
+        /// <param name="Generation">世代</param>
+        /// <returns></returns>
         public static Polyline GetKochCurve(double Angle, int Generation)
         {
             Polyline result = new Polyline();
@@ -100,6 +126,10 @@ namespace kurema.RhinoTools
             return result;
         }
 
+        /// <summary>
+        /// コッホ曲線を意味するLSystemを得ます。
+        /// </summary>
+        /// <returns>結果</returns>
         public static LSystem GetKochCurveLSystem()
         {
             LSystem.BodyType F = new LSystem.BodyType("F");
@@ -118,6 +148,11 @@ namespace kurema.RhinoTools
             treesys.RegisterBodyType(F, P, M);
             return treesys;
         }
+
+        /// <summary>
+        /// 樹木に相当するLSystemを得ます。
+        /// </summary>
+        /// <returns></returns>
         public static LSystem GetTreeLSystem()
         {
             LSystem.BodyType B = new LSystem.BodyType("B");//branch
@@ -163,6 +198,12 @@ namespace kurema.RhinoTools
 
         }
 
+        /// <summary>
+        /// 樹木に相当するIKを取得します。
+        /// 世代が多いほどモデルが処理の負荷が大きくなります。
+        /// </summary>
+        /// <param name="Generation">世代</param>
+        /// <returns>樹木相当のIKモデル</returns>
         public static GraphObject.Graph GetTreeGraph(int Generation)
         {
             LSystem lsys = GetTreeLSystem();
@@ -231,6 +272,11 @@ namespace kurema.RhinoTools
             }
         }
 
+        /// <summary>
+        /// 2Dの樹木を取得します。
+        /// </summary>
+        /// <param name="Generation">世代</param>
+        /// <returns>結果</returns>
         public static Polyline[] GetTree2D(int Generation)
         {
             double Angle = Math.PI / 6.0;
@@ -271,11 +317,22 @@ namespace kurema.RhinoTools
             return PLs.ToArray();
         }
 
+        /// <summary>
+        /// 適当な格好をしたデッサン人形モデルを取得します。
+        /// </summary>
+        /// <param name="Height">背の高さ</param>
+        /// <returns>結果</returns>
         public static Brep[] GetHumanRandom(double Height)
         {
             return GetHumanRandom(Height, new Random());
         }
 
+        /// <summary>
+        /// 適当な格好をしたデッサン人形モデルを取得します。
+        /// </summary>
+        /// <param name="Height">背の高さ</param>
+        /// <param name="rd">乱数インスタンス</param>
+        /// <returns>結果</returns>
         public static Brep[] GetHumanRandom(double Height, Random rd)
         {
             GraphObject.Graph human = GraphObject.Graph.GetHumanBody(Height);
@@ -283,6 +340,14 @@ namespace kurema.RhinoTools
             return human.GetBrep();
         }
 
+        /// <summary>
+        /// 多角形柱を取得します
+        /// </summary>
+        /// <param name="c">辺の数(n角形のn)</param>
+        /// <param name="Radius">半径</param>
+        /// <param name="height">高さ</param>
+        /// <param name="Cap">Capをするか</param>
+        /// <returns>結果</returns>
         public static Brep GetRegularPolygonTower(int c, double Radius, double height, bool Cap)
         {
             Brep result = Brep.CreateFromSurface(Surface.CreateExtrusion(GetRegularPolygon(c, Radius), new Vector3d(0, 0, height)));
@@ -290,6 +355,12 @@ namespace kurema.RhinoTools
             return result;
         }
 
+        /// <summary>
+        /// 多角形を線として取得します。
+        /// </summary>
+        /// <param name="c">辺の数(n角形のn)</param>
+        /// <param name="Radius">半径</param>
+        /// <returns>多角形</returns>
         public static Curve GetRegularPolygon(int c, double Radius)
         {
             Polyline pl = new Polyline(c + 1);
@@ -300,6 +371,17 @@ namespace kurema.RhinoTools
             return pl.ToNurbsCurve();
         }
 
+        /// <summary>
+        /// 簡易な連続したガラス窓を取得します。
+        /// </summary>
+        /// <param name="CountX">X方向の個数</param>
+        /// <param name="CountY">Y方向の個数</param>
+        /// <param name="Width">幅</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="FrameWidth">フレームの幅</param>
+        /// <param name="GlassThickness">ガラス厚さ</param>
+        /// <param name="Glass">ガラスを出力します</param>
+        /// <param name="Frame">フレームを出力します</param>
         public static void GetGlassWindowLight(int CountX, int CountY, double Width, double Height, double FrameWidth, double GlassThickness, out Brep[] Glass, out Brep[] Frame)
         {
             {
@@ -326,6 +408,18 @@ namespace kurema.RhinoTools
             Frame = ResultFrame;
         }
 
+        /// <summary>
+        /// 二次元的なフレームを取得します。
+        /// </summary>
+        /// <param name="CountX">X方向の個数</param>
+        /// <param name="CountY">Y方向の個数</param>
+        /// <param name="Width">幅</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="FrameWidthTop">フレームの上側の幅</param>
+        /// <param name="FrameWidthLeft">フレームの左側の幅</param>
+        /// <param name="FrameWidthRight">フレームの右側の幅</param>
+        /// <param name="FrameWidthBottom">フレームの下側の幅</param>
+        /// <returns>結果</returns>
         public static Brep[] GetFrame2d(int CountX, int CountY, double Width, double Height, double FrameWidthTop, double FrameWidthLeft, double FrameWidthRight, double FrameWidthBottom)
         {
             Curve RecBase;
@@ -361,12 +455,37 @@ namespace kurema.RhinoTools
             return Brep.CreatePlanarBreps(ResultBase);
         }
 
+        /// <summary>
+        /// 日本風の屋根を得ます。
+        /// </summary>
+        /// <param name="LengthTop">上側の長さ</param>
+        /// <param name="LengthBottom">下側の長さ</param>
+        /// <param name="Depth">深さ</param>
+        /// <param name="Pitch">ピッチ</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="RafterSpace">梁の感覚</param>
+        /// <param name="RafterWidth">梁の幅</param>
+        /// <param name="RafterHeight">梁の高さ</param>
+        /// <param name="Main">屋根部分</param>
+        /// <param name="Rafter">梁</param>
         public static void GetJapaneseRoof(double LengthTop, double LengthBottom, double Depth, double Pitch, double Height, double RafterSpace, double RafterWidth, double RafterHeight, out Brep[] Main, out Brep[] Rafter)
         {
             Main = GetJapaneseRoofMain(LengthTop, LengthBottom, Depth, Pitch, Height);
             Rafter = GetJapaneseRoofRafter(LengthTop, LengthBottom, Depth, Pitch, Height, RafterSpace, RafterWidth, RafterHeight);
         }
 
+        /// <summary>
+        /// 日本風の屋根における梁を取得します。
+        /// </summary>
+        /// <param name="LengthTop">上側の長さ</param>
+        /// <param name="LengthBottom">下側の長さ</param>
+        /// <param name="Depth">深さ</param>
+        /// <param name="Pitch">ピッチ</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="RafterSpace">梁の感覚</param>
+        /// <param name="RafterWidth">梁の幅</param>
+        /// <param name="RafterHeight">梁の高さ</param>
+        /// <returns>結果</returns>
         public static Brep[] GetJapaneseRoofRafter(double LengthTop, double LengthBottom, double Depth, double Pitch, double Height, double RafterSpace, double RafterWidth, double RafterHeight)
         {
             List<Brep> Lafters = new List<Brep>();
@@ -399,6 +518,15 @@ namespace kurema.RhinoTools
             return Lafters.ToArray();
         }
 
+        /// <summary>
+        /// 日本風の屋根における屋根部分を取得します。
+        /// </summary>
+        /// <param name="LengthTop">上側の長さ</param>
+        /// <param name="LengthBottom">下側の長さ</param>
+        /// <param name="Depth">深さ</param>
+        /// <param name="Pitch">ピッチ</param>
+        /// <param name="Height">高さ</param>
+        /// <returns>結果</returns>
         public static Brep[] GetJapaneseRoofMain(double LengthTop, double LengthBottom, double Depth, double Pitch, double Height)
         {
             List<Brep> ResultRoof = new List<Brep>();
@@ -420,16 +548,43 @@ namespace kurema.RhinoTools
             return Brep.CreateSolid(ResultRoof, Height / 100.0);
         }
 
+        /// <summary>
+        /// 線に沿ってガラス手すりを作成します。諸設定は自動的に行われます。
+        /// </summary>
+        /// <param name="BaseCurve">ガイドレール</param>
+        /// <returns>結果</returns>
         public static RealObject.Building GetHandrailGlass(Curve BaseCurve)
         {
             return GetHandrailGlass(BaseCurve, 700, 100, 600, 750, 50, 25, 37.5, 10, 100, 5.0);
         }
 
+        /// <summary>
+        /// 線に沿ってガラス手すりを作成します。
+        /// </summary>
+        /// <param name="BaseCurve">ガイドレール</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="Space">ガラス一枚当たりの幅</param>
+        /// <returns></returns>
         public static RealObject.Building GetHandrailGlass(Curve BaseCurve, double Height, double Space)
         {
             return GetHandrailGlass(BaseCurve, Height, 100, Height - 100, Space, 50, 25, 37.5, 10, 100, 5.0);
         }
 
+        /// <summary>
+        /// 線に沿ってガラス手すりを作成します。
+        /// </summary>
+        /// <param name="BaseCurve">ガイドレール</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="GlassHeightBottom">下側のガラスの高さ</param>
+        /// <param name="GlassHeightTop">上側のガラスの高さ</param>
+        /// <param name="Space">ガラス一枚当たりの幅param>
+        /// <param name="GlassMarginSide">ガラスの横の間隔</param>
+        /// <param name="Radius1">半径1</param>
+        /// <param name="Radius2">半径2</param>
+        /// <param name="GlassThick">ガラス厚さ</param>
+        /// <param name="EndSpace">端の感覚</param>
+        /// <param name="FrameWidth">枠の幅</param>
+        /// <returns>結果</returns>
         public static RealObject.Building GetHandrailGlass(Curve BaseCurve, double Height, double GlassHeightBottom, double GlassHeightTop, double Space, double GlassMarginSide, double Radius1, double Radius2, double GlassThick, double EndSpace, double FrameWidth)
         {
             EndSpace = BaseCurve.IsClosed ? 0 : EndSpace;
@@ -494,11 +649,28 @@ namespace kurema.RhinoTools
             return result;
         }
 
+        /// <summary>
+        /// 線に沿ってシンプルなガラス手すりを作成します。
+        /// </summary>
+        /// <param name="BaseCurve">ガイドレール</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="Space">間隔</param>
+        /// <returns>結果</returns>
         public static RealObject.Building GetHandrailGlassSimple(Curve BaseCurve, double Height, double Space)
         {
             return GetHandrailGlassSimple(BaseCurve, Height, Space, 10, 10, 50);
         }
 
+        /// <summary>
+        /// 線に沿ってシンプルなガラス手すりを作成します。
+        /// </summary>
+        /// <param name="BaseCurve">ガイドレール</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="Space">間隔</param>
+        /// <param name="FrameSizeHorizontal">水平方向の枠の大きさ</param>
+        /// <param name="FrameSizeBottom">下の枠の大きさ</param>
+        /// <param name="FrameSizeTop">上の枠の大きさ</param>
+        /// <returns>結果</returns>
         public static RealObject.Building GetHandrailGlassSimple(Curve BaseCurve, double Height, double Space, double FrameSizeHorizontal, double FrameSizeBottom, double FrameSizeTop)
         {
             RealObject.Building Result = new RealObject.Building("HandrailGlassSimple");
@@ -545,17 +717,35 @@ namespace kurema.RhinoTools
             return Result;
         }
 
+        /// <summary>
+        /// 距離と半径の組み合わせからパイプを作ります。
+        /// </summary>
+        /// <param name="Distance"></param>
+        /// <param name="Radius"></param>
+        /// <returns></returns>
         public static Brep GetPipeSimple(double[] Distance, double[] Radius)
         {
             return Brep.CreateFromRevSurface(RevSurface.Create(GetHeightMap(Distance, Radius), new Line(0, 0, 0, 1, 0, 0)), false, false);
         }
 
+        /// <summary>
+        /// 距離と半径の組み合わせから半周分のパイプを作ります。
+        /// </summary>
+        /// <param name="Distance"></param>
+        /// <param name="Radius"></param>
+        /// <returns></returns>
         public static Brep GetPipeHalf(double[] Distance, double[] Radius)
         {
             Curve RevBase = GetHeightMap(Distance, Radius);
             return Brep.CreateFromRevSurface(RevSurface.Create(RevBase, new Line(0, 0, 0, 1, 0, 0), Math.PI * 0, Math.PI), true, true);
         }
 
+        /// <summary>
+        /// 距離と半径の組み合わせを滑らかにつないだ線を表示します。
+        /// </summary>
+        /// <param name="Distance">距離</param>
+        /// <param name="Radius">半径</param>
+        /// <returns>曲線</returns>
         public static Curve GetHeightMap(double[] Distance, double[] Radius)
         {
             List<Point3d> Points = new List<Point3d>();
@@ -570,6 +760,12 @@ namespace kurema.RhinoTools
             return Curve.JoinCurves(intcrv)[0];
         }
 
+        /// <summary>
+        /// 距離と半径の組み合わせから片方が閉じた形状を作ります。
+        /// </summary>
+        /// <param name="Distance">距離</param>
+        /// <param name="Radius">半径</param>
+        /// <returns>結果</returns>
         public static Brep GetPipeHead(double[] Distance, double[] Radius)
         {
             List<Point3d> Points = new List<Point3d>();
@@ -588,17 +784,48 @@ namespace kurema.RhinoTools
             return Brep.CreateFromRevSurface(RevSurface.Create(intcrv, new Line(0, 0, 0, 1, 0, 0), 0, Math.PI * 2.0), true, true);
         }
 
+        /// <summary>
+        /// 簡単な時計を作成します。時間は作成時点に設定します。
+        /// </summary>
+        /// <param name="rd">ランダムインスタンス</param>
+        /// <param name="r">半径</param>
+        /// <returns>結果</returns>
         public static Brep[][] GetClock(RhinoDoc rd, double r)
         {
             return GetClock(rd, System.DateTime.Now, r, "Cambria");
         }
 
+        /// <summary>
+        /// 簡単な時計を作成します。時間は作成時点に設定します。
+        /// </summary>
+        /// <param name="rd">ランダムインスタンス</param>
+        /// <param name="dt">表示させる時間</param>
+        /// <param name="r">半径</param>
+        /// <param name="fontname">文字盤のフォント名</param>
+        /// <returns>結果</returns>
         public static Brep[][] GetClock(RhinoDoc rd, System.DateTime dt, double r, string fontname)
         {
             return GetClock(rd, dt, r, fontname, new Interval(0.75, 0.85), new Interval(0.9, 1.0), 0.02, new Interval[] { new Interval(-0.0, 0.6), new Interval(-0.1, 0.7), new Interval(-0.2, 0.75) },
               new double[] { 0.03, 0.02, 0.01 }, 5, 2, 2, 2);
         }
 
+        /// <summary>
+        /// 簡単な時計を作成します。時間は作成時点に設定します。
+        /// </summary>
+        /// <param name="rd">ランダムインスタンス</param>
+        /// <param name="time">表示させる時間</param>
+        /// <param name="Radius">半径</param>
+        /// <param name="TextFontName">文字盤のフォント名</param>
+        /// <param name="TextRad">文字盤の半径</param>
+        /// <param name="Frame">フレームの存在範囲</param>
+        /// <param name="CenterRad">時計の半径</param>
+        /// <param name="HandsRad">針の半径</param>
+        /// <param name="HandsWidth">針の太さ</param>
+        /// <param name="BaseThick">基本的な厚さ</param>
+        /// <param name="HandsThick">針の厚さ</param>
+        /// <param name="TextThick">文字の厚さ</param>
+        /// <param name="GlassThick">ガラスの厚さ</param>
+        /// <returns></returns>
         public static Brep[][] GetClock(RhinoDoc rd, System.DateTime time, double Radius, string TextFontName, Interval TextRad, Interval Frame, double CenterRad, Interval[] HandsRad, double[] HandsWidth, double BaseThick, double HandsThick, double TextThick, double GlassThick)
         {
             Brep[][] Result = new Brep[5][];
@@ -648,22 +875,60 @@ namespace kurema.RhinoTools
             return Result;
         }
 
+        /// <summary>
+        /// 文字のアウトラインを取得します。
+        /// </summary>
+        /// <param name="TextContent">文字</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="FontName">フォント名</param>
+        /// <param name="Bold">ボールドにするか</param>
+        /// <param name="Italic">イタリックにするか</param>
+        /// <param name="RhinoDocument">対象のドキュメント</param>
+        /// <returns>結果</returns>
         public static Curve[] GetTextCurve(string TextContent, double Height, string FontName, bool Bold, bool Italic, RhinoDoc RhinoDocument)
         {
             Rhino.Geometry.TextEntity txt = new TextEntity();
             txt.Text = TextContent;
             txt.TextHeight = Height;
 
-
-
             txt.FontIndex = RhinoDocument.Fonts.FindOrCreate(FontName, Bold, Italic);
             return txt.Explode();
         }
 
+        /// <summary>
+        /// 文字のアウトラインを取得します。
+        /// </summary>
+        /// <param name="TextContent">文字</param>
+        /// <param name="Height">高さ</param>
+        /// <returns>アウトライン</returns>
         public static Curve[] GetTextCurve(string TextContent, double Height) { return (new TextEntity() { Text = TextContent, TextHeight = Height }).Explode(); }
+        /// <summary>
+        /// 文字をBrepとして取得します。
+        /// </summary>
+        /// <param name="TextContent">文字</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="Thickness">厚さ</param>
+        /// <returns>形状</returns>
         public static Brep[] GetTextBrep(string TextContent, double Height, double Thickness) { return GeneralHelper.CreateExtrusionCaped((new TextEntity() { Text = TextContent, TextHeight = Height }).Explode(), new Vector3d(0, 0, Thickness)); }
+        /// <summary>
+        /// 文字をBrepとして取得します。
+        /// </summary>
+        /// <param name="TextContent">文字</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="Thickness">厚さ</param>
+        /// <param name="FontName">フォント名</param>
+        /// <param name="Bold">ボールドであるか</param>
+        /// <param name="Italic">イタリックであるか</param>
+        /// <param name="RhinoDocument">ドキュメント</param>
+        /// <returns>Brep</returns>
         public static Brep[] GetTextBrep(string TextContent, double Height, double Thickness, string FontName, bool Bold, bool Italic, RhinoDoc RhinoDocument) { return GeneralHelper.CreateExtrusionCaped(GetTextCurve(TextContent, Height, FontName, Bold, Italic, RhinoDocument), new Vector3d(0, 0, Thickness)); }
-
+        /// <summary>
+        /// 線路のバラストを取得します。
+        /// </summary>
+        /// <param name="BallastWidthTop">上側の幅</param>
+        /// <param name="BallastWidthBottom">下側の幅</param>
+        /// <param name="BallastHeight">高さ</param>
+        /// <returns>Brep</returns>
         public static Curve GetRailroadBallast(double BallastWidthTop, double BallastWidthBottom, double BallastHeight)
         {
             Polyline BallastBasePL = new Polyline(5);
@@ -675,11 +940,26 @@ namespace kurema.RhinoTools
             return BallastBasePL.ToNurbsCurve();
         }
 
+        /// <summary>
+        /// 標準的な鉄道線路の断面を取得します。
+        /// </summary>
+        /// <returns>断面</returns>
         public static Curve GetRailroadTrackShape()
         {
             return GetRailroadTrackShape(145.0, 65.0, 49.0, 94.9, 30.1, 16.5);
         }
 
+        /// <summary>
+        /// 標準的な鉄道線路の断面を取得します。
+        /// 大きさを設定可能ですが、標準値以外を利用する必要性は特にありません。
+        /// </summary>
+        /// <param name="b">B</param>
+        /// <param name="c">C</param>
+        /// <param name="d">D</param>
+        /// <param name="e">E</param>
+        /// <param name="f">F</param>
+        /// <param name="g">G</param>
+        /// <returns>断面</returns>
         public static Curve GetRailroadTrackShape(double b, double c, double d, double e, double f, double g)
         {
             Polyline BallastBasePL = new Polyline(11);
@@ -701,6 +981,12 @@ namespace kurema.RhinoTools
             return BallastBasePL.ToNurbsCurve();
         }
 
+        /// <summary>
+        /// ガイドレールに沿って線路を配置します。
+        /// バラストや枕木を含みます。
+        /// </summary>
+        /// <param name="RailCurves">レール</param>
+        /// <returns>結果</returns>
         public static RealObject.Building GetRailroad(Curve[] RailCurves)
         {
             Brep[] brep1, brep2, brep3;
@@ -716,17 +1002,55 @@ namespace kurema.RhinoTools
             return result;
         }
 
+        /// <summary>
+        /// ガイドレールに沿って線路を配置します。
+        /// バラストや枕木を含みます。
+        /// Brepとして出力します。
+        /// </summary>
+        /// <param name="RailCurves">レール</param>
+        /// <param name="Railroad">線路を出力します。</param>
+        /// <param name="RailroadTie">枕木を得ます。</param>
+        /// <param name="TrackBallast">バラストを得ます。</param>
         public static void GetRailroad(Curve[] RailCurves, out Brep[] Railroad, out Brep[] RailroadTie, out Brep[] TrackBallast)
         {
             double TrackGauge = 1067.0;
             GetRailroad(RailCurves, GetRailroadTrackShape(), TrackGauge, out Railroad, out RailroadTie, out TrackBallast);
         }
 
+        /// <summary>
+        /// ガイドレールに沿って線路を配置します。
+        /// バラストや枕木を含みます。
+        /// Brepとして出力します。
+        /// </summary>
+        /// <param name="RailCurves">レール</param>
+        /// <param name="TrackShape">線路の形状</param>
+        /// <param name="TrackGauge">軌間。国内では1067mmの狭軌と1435mmの標準機が主流です。</param>
+        /// <param name="Railroad">線路を出力します。</param>
+        /// <param name="RailroadTie">枕木を得ます。</param>
+        /// <param name="TrackBallast">バラストを得ます。</param>
         public static void GetRailroad(Curve[] RailCurves, Curve TrackShape, double TrackGauge, out Brep[] Railroad, out Brep[] RailroadTie, out Brep[] TrackBallast)
         {
             GetRailroad(RailCurves, TrackShape, TrackGauge, TrackGauge * 2.0, 200, 50, 700, TrackGauge * 2.5, TrackGauge * 3.0, 140, out Railroad, out RailroadTie, out TrackBallast);
         }
 
+        /// <summary>
+        /// ガイドレールに沿って線路を配置します。
+        /// バラストや枕木を含みます。
+        /// Brepとして出力します。
+        /// </summary>
+        /// <param name="RailCurves">レール</param>
+        /// <param name="TrackShape">線路の形状</param>
+        /// <param name="TrackGauge">軌間。国内では1067mmの狭軌と1435mmの標準機が主流です。</param>
+        /// <param name="TieWidth">枕木の幅。0では作成しません。</param>
+        /// <param name="TieLength">枕木の長さ</param>
+        /// <param name="TieHeight">枕木の高さ</param>
+        /// <param name="TieSpace">枕木の間隔</param>
+        /// <param name="BallastWidthTop">バラストの上部の幅</param>
+        /// <param name="BallastWidthBottom">バラストの下部の幅</param>
+        /// <param name="BallastHeight">バラストの高さ</param>
+        /// <param name="Railroad">線路を出力します。</param>
+        /// <param name="RailroadTie">枕木を得ます。</param>
+        /// <param name="TrackBallast">バラストを得ます。</param>
         public static void GetRailroad(Curve[] RailCurves, Curve TrackShape, double TrackGauge, double TieWidth, double TieLength, double TieHeight, double TieSpace, double BallastWidthTop, double BallastWidthBottom, double BallastHeight, out Brep[] Railroad, out Brep[] RailroadTie, out Brep[] TrackBallast)
         {
             TrackGauge = Math.Abs(TrackGauge);
@@ -783,6 +1107,27 @@ namespace kurema.RhinoTools
             TrackBallast = ResultBallast.ToArray();
         }
 
+        /// <summary>
+        /// タワークレーンを出力します。
+        /// </summary>
+        /// <param name="AngleClane">クレーン部分の角度</param>
+        /// <param name="AngleHead">上部の角度</param>
+        /// <param name="Basement">基底部の角度</param>
+        /// <param name="LadderBasement">出力1</param>
+        /// <param name="LiftFrame">出力2</param>
+        /// <param name="RotationUnit">出力3</param>
+        /// <param name="HeadHouseWall">出力4</param>
+        /// <param name="HeadHouseGlass">出力5</param>
+        /// <param name="HeadBody">出力6</param>
+        /// <param name="HeadHandrail">出力7</param>
+        /// <param name="HeadClaneBodyRed">出力8</param>
+        /// <param name="HeadClaneBodyWhite">出力9</param>
+        /// <param name="HeadClaneLadderRed">出力10</param>
+        /// <param name="HeadClaneLadderWhite">出力11</param>
+        /// <param name="HeadPole">出力12</param>
+        /// <param name="HeadPoleWorkSpace">出力13</param>
+        /// <param name="HeadClaneWorkSpace">出力14</param>
+        /// <param name="HeadClaneWire">出力15</param>
         public static void GetTowerClane(double AngleClane, double AngleHead, out Brep[] Basement, out Brep[] LadderBasement, out Brep[] LiftFrame, out Brep[] RotationUnit,
             out Brep[] HeadHouseWall, out Brep[] HeadHouseGlass, out Brep[] HeadBody, out Brep[] HeadHandrail, out Brep[] HeadClaneBodyRed, out Brep[] HeadClaneBodyWhite, out Brep[] HeadClaneLadderRed, out Brep[] HeadClaneLadderWhite,
             out Brep[] HeadPole, out Brep[] HeadPoleWorkSpace, out Brep[] HeadClaneWorkSpace, out Brep[] HeadClaneWire)
@@ -823,6 +1168,22 @@ namespace kurema.RhinoTools
             HeadClaneWire = GeneralHelper.RotateBreps(GeneralHelper.TranslateBreps(Wire, new Point3d(0, 0, 20 * 800 + 600)), AngleHead, new Vector3d(0, 0, 1));
         }
 
+        /// <summary>
+        /// タワークレーンのクレーン部分を出力します。
+        /// </summary>
+        /// <param name="Count">個数</param>
+        /// <param name="Angle">角度</param>
+        /// <param name="Width1">幅1</param>
+        /// <param name="Width2">幅2</param>
+        /// <param name="Length">長さ</param>
+        /// <param name="Space">間隔</param>
+        /// <param name="Radius1">半径1</param>
+        /// <param name="Radius2">半径2</param>
+        /// <param name="Body1">本体1</param>
+        /// <param name="Body2">本体2</param>
+        /// <param name="Ladder1">梯子1</param>
+        /// <param name="Ladder2">梯子2</param>
+        /// <param name="WorkSpace">作業場</param>
         public static void GetTowerClaneClane(int Count, double Angle, double Width1, double Width2, double Length, double Space, double Radius1, double Radius2, out Brep[] Body1, out Brep[] Body2, out Brep[] Ladder1, out Brep[] Ladder2, out Brep[] WorkSpace)
         {
             Angle = -Angle;
@@ -859,8 +1220,16 @@ namespace kurema.RhinoTools
             Ladder2 = ResultBody[3].ToArray();
         }
 
-
-
+        /// <summary>
+        /// タワークレーンのクレーンユニットを取得します。
+        /// </summary>
+        /// <param name="Width1">幅1</param>
+        /// <param name="Width2">幅2</param>
+        /// <param name="Length">長さ</param>
+        /// <param name="Space">間隔</param>
+        /// <param name="Radius1">半径1</param>
+        /// <param name="Radius2">半径2</param>
+        /// <returns>結果</returns>
         public static Brep[] GetTowerClaneClaneUnit(double Width1, double Width2, double Length, double Space, double Radius1, double Radius2)
         {
             List<Brep> Result = new List<Brep>();
@@ -899,6 +1268,17 @@ namespace kurema.RhinoTools
             return Result.ToArray();
         }
 
+        /// <summary>
+        /// タワークレーン用のケーブルローラーを取得します。
+        /// </summary>
+        /// <param name="Width">幅</param>
+        /// <param name="CableRadius">ケーブル半径</param>
+        /// <param name="Radius1">幅1</param>
+        /// <param name="Radius2">幅2</param>
+        /// <param name="Thickness">厚さ</param>
+        /// <param name="Body">本体を出力します</param>
+        /// <param name="Cable">ケーブルを出力します</param>
+        /// <param name="CableTarget">ケーブル用の目標を設定します。</param>
         public static void GetTowerClaneCableRoller(double Width, double CableRadius, double Radius1, double Radius2, double Thickness, out Brep[] Body, out Brep[] Cable, out Point3d CableTarget)
         {
             Body = new Brep[]{Brep.CreateFromCylinder(new Cylinder(new Circle(new Plane(new Point3d(0, -Width / 2.0, Radius2), new Vector3d(0, 1, 0)), Radius2), Thickness), true, true),
@@ -919,6 +1299,17 @@ namespace kurema.RhinoTools
             CableTarget = new Point3d(Radius1 * Math.Cos(Math.PI * 3.0 / 4.0), 0, Radius1 * Math.Sin(Math.PI * 3.0 / 4.0) + Radius2);
         }
 
+        /// <summary>
+        /// タワークレーン用のケーブルローラーの軽量版を取得します。
+        /// </summary>
+        /// <param name="Width">幅</param>
+        /// <param name="CableRadius">ケーブル半径</param>
+        /// <param name="Radius1">幅1</param>
+        /// <param name="Radius2">幅2</param>
+        /// <param name="Thickness">厚さ</param>
+        /// <param name="Body">本体を出力します</param>
+        /// <param name="Cable">ケーブルを出力します</param>
+        /// <param name="CableTarget">ケーブル用の目標を設定します。</param>
         public static void GetTowerClaneCableRollerLight(double Width, double CableRadius, double Radius1, double Radius2, double Thickness, out Brep[] Body, out Brep[] Cable, out Point3d CableTarget)
         {
             Body = new Brep[]{Brep.CreateFromCylinder(new Cylinder(new Circle(new Plane(new Point3d(0, -Width / 2.0, Radius2), new Vector3d(0, 1, 0)), Radius2), Thickness), true, true),
@@ -927,6 +1318,13 @@ namespace kurema.RhinoTools
             CableTarget = new Point3d(Radius1 * Math.Cos(Math.PI * 3.0 / 4.0), 0, Radius1 * Math.Sin(Math.PI * 3.0 / 4.0) + Radius2);
         }
 
+        /// <summary>
+        /// 作業用スペースを出力します。
+        /// </summary>
+        /// <param name="Width">幅</param>
+        /// <param name="Length">長さ</param>
+        /// <param name="Thickness">厚さ</param>
+        /// <returns></returns>
         public static Brep[] GetWorkSpace(double Width, double Length, double Thickness)
         {
             List<Brep> Result = new List<Brep>();
@@ -944,6 +1342,17 @@ namespace kurema.RhinoTools
             return Result.ToArray();
         }
 
+        /// <summary>
+        /// タワークレーンのポールを出力します。
+        /// </summary>
+        /// <param name="Width">幅</param>
+        /// <param name="Length">長さ</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="Size1">サイズ1</param>
+        /// <param name="Size2">サイズ2</param>
+        /// <param name="Radius">半径</param>
+        /// <param name="Space">間隔</param>
+        /// <returns></returns>
         public static Brep[] GetTowerClanePole(double Width, double Length, double Height, double Size1, double Size2, double Radius, double Space)
         {
             List<Brep> Result = new List<Brep>();
@@ -982,6 +1391,23 @@ namespace kurema.RhinoTools
             return Result.ToArray();
         }
 
+        /// <summary>
+        /// タワークレーンの頭部を出力します。
+        /// </summary>
+        /// <param name="Body">本体</param>
+        /// <param name="Handrail">手すり</param>
+        /// <param name="Wall">壁</param>
+        /// <param name="Glass">ガラス</param>
+        /// <param name="Pole">ポール</param>
+        /// <param name="WorkSpace">作業場</param>
+        /// <param name="Angle">角度</param>
+        /// <param name="RedBody">赤い部分</param>
+        /// <param name="WhiteBody">白い部分</param>
+        /// <param name="ClaneLadderRed">梯子(赤)</param>
+        /// <param name="ClaneLadderWhite">梯子(城)</param>
+        /// <param name="ClaneWorkSpace">作業場</param>
+        /// <param name="WireLength">ワイヤー長さ</param>
+        /// <param name="Wire">ワイヤー</param>
         public static void GetTowerClaneHead(out Brep[] Body, out Brep[] Handrail, out Brep[] Wall, out Brep[] Glass, out Brep[] Pole
         , out Brep[] WorkSpace, double Angle, out Brep[] RedBody, out Brep[] WhiteBody, out Brep[] ClaneLadderRed, out Brep[] ClaneLadderWhite, out Brep[] ClaneWorkSpace, double WireLength, out Brep[] Wire)
         {
@@ -1049,7 +1475,16 @@ namespace kurema.RhinoTools
             }
         }
 
-
+        /// <summary>
+        /// タワークレーンの頭部基底部を出力します。
+        /// </summary>
+        /// <param name="Width">幅</param>
+        /// <param name="Length">長さ</param>
+        /// <param name="Thickness">厚さ</param>
+        /// <param name="Body">本体</param>
+        /// <param name="Handrail">手すり</param>
+        /// <param name="Wall">壁</param>
+        /// <param name="Glass">ガラス</param>
         public static void GetTowerClaneHeadBase(double Width, double Length, double Thickness, out Brep[] Body, out Brep[] Handrail, out Brep[] Wall, out Brep[] Glass)
         {
             GetTowerClaneControlUnit(Width / 3.0, Length / 2.0, Length / 2.0 + 500, 1.0e3, 2.5e3, 1.0e3, 150, out Wall, out Glass);
@@ -1066,11 +1501,28 @@ namespace kurema.RhinoTools
             Handrail = GeneralHelper.TranslateBreps(GetHandrailSimple(HandrailBase.ToNurbsCurve(), 800, new double[] { 400, 600 }, 500, HRRadius, 15, 10), new Vector3d(0, 0, Thickness));
         }
 
+        /// <summary>
+        /// タワークレーンの操作ユニットを出力します。
+        /// </summary>
+        /// <param name="Wall">壁</param>
+        /// <param name="Glass">ガラス</param>
         public static void GetTowerClaneControlUnit(out Brep[] Wall, out Brep[] Glass)
         {
             GetTowerClaneControlUnit(1.5e3, 5e3, 5.5e3, 1.0e3, 2.5e3, 1.0e3, 150, out Wall, out Glass);
         }
 
+        /// <summary>
+        /// タワークレーンの操作ユニットを出力します。
+        /// </summary>
+        /// <param name="Width">幅</param>
+        /// <param name="BottomLength">底の長さ</param>
+        /// <param name="TopLength">上部の長さ</param>
+        /// <param name="SideWindowLength">横の窓の長さ</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="BarHeight">バーの高さ</param>
+        /// <param name="FrameWidth">フレームの幅</param>
+        /// <param name="Wall">壁</param>
+        /// <param name="Glass">ガラス</param>
         public static void GetTowerClaneControlUnit(double Width, double BottomLength, double TopLength, double SideWindowLength, double Height, double BarHeight, double FrameWidth, out Brep[] Wall, out Brep[] Glass)
         {
             double WallThickness = 50.0;
@@ -1166,6 +1618,17 @@ namespace kurema.RhinoTools
             Glass = RetGlass.ToArray();
         }
 
+        /// <summary>
+        /// 手すりを取得します。
+        /// </summary>
+        /// <param name="BaseCurve">ガイドレール</param>
+        /// <param name="Height">高さ</param>
+        /// <param name="RailHeight">レールの高さ</param>
+        /// <param name="Space">間隔</param>
+        /// <param name="Radius1">半径1</param>
+        /// <param name="Radius2">半径2</param>
+        /// <param name="Radius3">半径3</param>
+        /// <returns>結果</returns>
         public static Brep[] GetHandrailSimple(Curve BaseCurve, double Height, double[] RailHeight, double Space, double Radius1, double Radius2, double Radius3)
         {
             List<Brep> Result = new List<Brep>();
@@ -1198,6 +1661,14 @@ namespace kurema.RhinoTools
             return Result.ToArray();
         }
 
+        /// <summary>
+        /// タワークレーンの回転部分
+        /// </summary>
+        /// <param name="Height1">高さ1</param>
+        /// <param name="Radius1">半径1</param>
+        /// <param name="Height2">高さ2</param>
+        /// <param name="Radius2">半径2</param>
+        /// <returns></returns>
         public static Brep[] GetTowerClaneRotationUnit(double Height1, double Radius1, double Height2, double Radius2)
         {
             Brep Cylinder2 = Brep.CreateFromCylinder(new Cylinder(new Circle(Radius2 / 2.0), Height2), true, true);
@@ -1207,6 +1678,12 @@ namespace kurema.RhinoTools
       };
         }
 
+        /// <summary>
+        /// タワークレーンのリフトフレームを取得します。
+        /// </summary>
+        /// <param name="Size1">サイズ1</param>
+        /// <param name="Size2">サイズ2</param>
+        /// <returns>結果</returns>
         public static Brep[] GetTowerClaneLiftFrame(double Size1, double Size2)
         {
             Brep[] Parts1;
@@ -1220,6 +1697,14 @@ namespace kurema.RhinoTools
             return Result.ToArray();
         }
 
+        /// <summary>
+        /// タワークレーンのリフトフレームを取得します。
+        /// </summary>
+        /// <param name="Size1">サイズ1</param>
+        /// <param name="Size2">サイズ2</param>
+        /// <param name="Parts1">パーツ1</param>
+        /// <param name="Parts2">パーツ2</param>
+        /// <param name="Parts3">パーツ3</param>
         public static void GetTowerClaneLiftFrame(double Size1, double Size2, out Brep[] Parts1, out Brep[] Parts2, out Brep[] Parts3)
         {
             double UnitHeight = Size1 * 0.8;
@@ -1267,11 +1752,25 @@ namespace kurema.RhinoTools
             Parts3 = RetParts3.ToArray();
         }
 
+        /// <summary>
+        /// 単純な梯子を取得します。
+        /// </summary>
+        /// <param name="Length">長さ</param>
+        /// <returns>結果</returns>
         public static Brep[] GetLadderSimple(double Length)
         {
             return GetLadderSimple(Length, 300, 400, 25, 15);
         }
 
+        /// <summary>
+        /// 単純な梯子を取得します。
+        /// </summary>
+        /// <param name="Length">長さ</param>
+        /// <param name="Space">間隔</param>
+        /// <param name="Width">幅</param>
+        /// <param name="Radius1">半径1</param>
+        /// <param name="Radius2">半径2</param>
+        /// <returns>結果</returns>
         public static Brep[] GetLadderSimple(double Length, double Space, double Width, double Radius1, double Radius2)
         {
             List<Brep> Result = new List<Brep>();
@@ -1285,12 +1784,26 @@ namespace kurema.RhinoTools
             return Result.ToArray();
         }
 
-
+        /// <summary>
+        /// タワークレーンの基底部分を取得します。
+        /// </summary>
+        /// <param name="Count">ブロック数</param>
+        /// <returns>結果</returns>
         public static Brep[] GetTowerClaneBasement(int Count)
         {
             return GetTowerClaneBasement(Count, 1000, 800, 30, 150, 100);
         }
 
+        /// <summary>
+        /// タワークレーンの基底部分を取得します。
+        /// </summary>
+        /// <param name="Count">ブロック数</param>
+        /// <param name="UnitWidth">ブロックの幅</param>
+        /// <param name="UnitHeight">ブロックの高さ</param>
+        /// <param name="Thickness">厚さ</param>
+        /// <param name="Width1">幅1</param>
+        /// <param name="Width2">幅2</param>
+        /// <returns>結果</returns>
         public static Brep[] GetTowerClaneBasement(int Count, double UnitWidth, double UnitHeight, double Thickness, double Width1, double Width2)
         {
             double Tr1 = UnitWidth / 2.0 - Width1 / 2.0;
@@ -1343,7 +1856,18 @@ namespace kurema.RhinoTools
             return Result;
         }
 
-
+        /// <summary>
+        /// スパンドレル付きのガラス窓を出力します。
+        /// </summary>
+        /// <param name="WindowWidth">窓の幅</param>
+        /// <param name="WindowHeight">窓の高さ</param>
+        /// <param name="FrameSize">枠の大きさ</param>
+        /// <param name="FrameThickness">枠の厚さ</param>
+        /// <param name="GlassThickness">ガラスの厚さ</param>
+        /// <param name="SpandrelHeight">スパンドレルの高さ</param>
+        /// <param name="Frame">窓枠</param>
+        /// <param name="Glass">ガラス</param>
+        /// <param name="Spandrel">スパンドレル</param>
         public static void GetGlassWithSpandrel(double WindowWidth, double WindowHeight, double FrameSize, double FrameThickness, double GlassThickness, double SpandrelHeight, out Brep[] Frame, out Brep Glass, out Brep Spandrel)
         {
             double SpandrelSpace = FrameSize;
@@ -1353,6 +1877,21 @@ namespace kurema.RhinoTools
             GetGlassWithSpandrel(WindowWidth, WindowHeight, FrameSize, FrameThickness, GlassThickness, SpandrelHeight, SpandrelSpace, SpandrelSpaceZ, SpandrelThickness, out Frame, out Glass, out Spandrel);
         }
 
+        /// <summary>
+        /// スパンドレル付きのガラス窓を出力します。
+        /// </summary>
+        /// <param name="WindowWidth">窓の幅</param>
+        /// <param name="WindowHeight">窓の高さ</param>
+        /// <param name="FrameSize">枠の大きさ</param>
+        /// <param name="FrameThickness">枠の厚さ</param>
+        /// <param name="GlassThickness">ガラスの厚さ</param>
+        /// <param name="SpandrelHeight">スパンドレルの高さ</param>
+        /// <param name="SpandrelSpace">スパンドレルの間隔</param>
+        /// <param name="SpandrelSpaceZ">スパンドレルのZ方向間隔</param>
+        /// <param name="SpandrelThickness">スパンドレルの厚さ</param>
+        /// <param name="Frame">窓枠</param>
+        /// <param name="Glass">ガラス</param>
+        /// <param name="Spandrel">スパンドレル</param>
         public static void GetGlassWithSpandrel(double WindowWidth, double WindowHeight, double FrameSize, double FrameThickness, double GlassThickness, double SpandrelHeight, double SpandrelSpace, double SpandrelSpaceZ, double SpandrelThickness, out Brep[] Frame, out Brep Glass, out Brep Spandrel)
         {
             Brep BaseFrame;
@@ -1362,6 +1901,18 @@ namespace kurema.RhinoTools
             Frame = new Brep[] { BaseFrame, SpandrelFrame };
         }
 
+        /// <summary>
+        /// 上側がスパンドレルのスパンドレル付きのガラス窓を出力します。
+        /// </summary>
+        /// <param name="WindowWidth">窓の幅</param>
+        /// <param name="WindowHeight">窓の高さ</param>
+        /// <param name="FrameSize">枠の大きさ</param>
+        /// <param name="FrameThickness">枠の厚さ</param>
+        /// <param name="GlassThickness">ガラスの厚さ</param>
+        /// <param name="SpandrelHeight">スパンドレルの高さ</param>
+        /// <param name="Frame">窓枠</param>
+        /// <param name="Glass">ガラス</param>
+        /// <param name="Spandrel">スパンドレル</param>
         public static void GetGlassWithSpandrelUpsidedown(double WindowWidth, double WindowHeight, double FrameSize, double FrameThickness, double GlassThickness, double SpandrelHeight, out Brep[] Frame, out Brep Glass, out Brep Spandrel)
         {
             double SpandrelSpace = FrameSize;
@@ -1371,6 +1922,21 @@ namespace kurema.RhinoTools
             GetGlassWithSpandrelUpsidedown(WindowWidth, WindowHeight, FrameSize, FrameThickness, GlassThickness, SpandrelHeight, SpandrelSpace, SpandrelSpaceZ, SpandrelThickness, out Frame, out Glass, out Spandrel);
         }
 
+        /// <summary>
+        /// スパンドレル付きのガラス窓を出力します。
+        /// </summary>
+        /// <param name="WindowWidth">窓の幅</param>
+        /// <param name="WindowHeight">窓の高さ</param>
+        /// <param name="FrameSize">枠の大きさ</param>
+        /// <param name="FrameThickness">枠の厚さ</param>
+        /// <param name="GlassThickness">ガラスの厚さ</param>
+        /// <param name="SpandrelHeight">スパンドレルの高さ</param>
+        /// <param name="SpandrelSpace">スパンドレルの間隔</param>
+        /// <param name="SpandrelSpaceZ">スパンドレルのZ方向間隔</param>
+        /// <param name="SpandrelThickness">スパンドレルの厚さ</param>
+        /// <param name="Frame">窓枠</param>
+        /// <param name="Glass">ガラス</param>
+        /// <param name="Spandrel">スパンドレル</param>
         public static void GetGlassWithSpandrelUpsidedown(double WindowWidth, double WindowHeight, double FrameSize, double FrameThickness, double GlassThickness, double SpandrelHeight, double SpandrelSpace, double SpandrelSpaceZ, double SpandrelThickness, out Brep[] Frame, out Brep Glass, out Brep Spandrel)
         {
             Brep BaseFrame;
@@ -1380,11 +1946,32 @@ namespace kurema.RhinoTools
             Frame = new Brep[] { BaseFrame, SpandrelFrame };
         }
 
+        /// <summary>
+        /// 基本的なガラス窓を出力します。
+        /// </summary>
+        /// <param name="WindowWidth">窓の幅</param>
+        /// <param name="WindowHeight">窓の高さ</param>
+        /// <param name="FrameSize">枠の大きさ</param>
+        /// <param name="FrameThickness">枠の厚さ</param>
+        /// <param name="GlassThickness">ガラスの厚さ</param>
+        /// <param name="Frame">枠</param>
+        /// <param name="Glass">ガラス</param>
         public static void GetGlassSimple(double WindowWidth, double WindowHeight, double FrameSize, double FrameThickness, double GlassThickness, out Brep Frame, out Brep Glass)
         {
             GetGlassSimple(WindowWidth, WindowHeight, FrameSize, FrameSize, FrameThickness, GlassThickness, out Frame, out Glass);
         }
 
+        /// <summary>
+        /// 基本的なガラス窓を出力します。
+        /// </summary>
+        /// <param name="WindowWidth">窓の幅</param>
+        /// <param name="WindowHeight">窓の高さ</param>
+        /// <param name="FrameSizeX">枠の大きさ(左右)</param>
+        /// <param name="FrameSizeY">枠の大きさ(上下)</param>
+        /// <param name="FrameThickness">枠の厚さ</param>
+        /// <param name="GlassThickness">ガラスの厚さ</param>
+        /// <param name="Frame">枠</param>
+        /// <param name="Glass">ガラス</param>
         public static void GetGlassSimple(double WindowWidth, double WindowHeight, double FrameSizeX, double FrameSizeY, double FrameThickness, double GlassThickness, out Brep Frame, out Brep Glass)
         {
             Brep FrameBase = Brep.CreateFromBox(new Box(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 1, 0)), new Interval(0, WindowHeight), new Interval(0, WindowWidth), new Interval(-FrameThickness, GlassThickness)));
@@ -1394,6 +1981,21 @@ namespace kurema.RhinoTools
             Glass = Brep.CreateFromBox(new Box(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 1, 0)), new Interval(FrameSizeY, WindowHeight - FrameSizeY), new Interval(FrameSizeX, WindowWidth - FrameSizeX), new Interval(0, GlassThickness)));
         }
 
+        /// <summary>
+        /// 上下の枠と左右の枠が独立したガラス窓を取得します。
+        /// </summary>
+        /// <param name="FrameSizeX">左右の枠サイズ</param>
+        /// <param name="FrameSizeY">上下の枠サイズ</param>
+        /// <param name="FrameThickness1">枠の厚さ1</param>
+        /// <param name="FrameThickness2">枠の厚さ2</param>
+        /// <param name="UnitSizeX">ユニットの水平方向の大きさ</param>
+        /// <param name="UnitSizeY">ユニットの鉛直方向の大きさ</param>
+        /// <param name="GlassThickness">ガラスの厚さ</param>
+        /// <param name="UnitCountX">水平方向の個数</param>
+        /// <param name="UnitCountY">鉛直方向の個数</param>
+        /// <param name="Glass">ガラス</param>
+        /// <param name="Frame1">枠1</param>
+        /// <param name="Frame2">枠2</param>
         public static void GetIsolatedWindow(double FrameSizeX, double FrameSizeY, double FrameThickness1, double FrameThickness2, double UnitSizeX, double UnitSizeY, double GlassThickness, int UnitCountX, int UnitCountY, out Brep[] Glass, out Brep[] Frame1, out Brep[] Frame2)
         {
             Frame1 = new Brep[UnitCountY * 2];
@@ -1418,6 +2020,15 @@ namespace kurema.RhinoTools
             }
         }
 
+        /// <summary>
+        /// 全体が結合している階段を取得します。
+        /// </summary>
+        /// <param name="Count">段数</param>
+        /// <param name="StairWidth">幅</param>
+        /// <param name="StairHeight">高さ</param>
+        /// <param name="StairLength">長さ</param>
+        /// <param name="StairThicknss">厚さ</param>
+        /// <returns>結果(単一のBrep)</returns>
         public static Brep GetStairsSolid(int Count, double StairWidth, double StairHeight, double StairLength, double StairThicknss)
         {
             StairThicknss = Math.Max(1, Math.Abs(StairThicknss));
@@ -1434,6 +2045,16 @@ namespace kurema.RhinoTools
             return Brep.CreateFromSurface(Surface.CreateExtrusion((pl.ToNurbsCurve()), new Vector3d(StairWidth, 0, 0))).CapPlanarHoles(0);
         }
 
+        /// <summary>
+        /// 単純な階段を取得します。
+        /// </summary>
+        /// <param name="Count">段数</param>
+        /// <param name="StairWidth">幅</param>
+        /// <param name="StairHeight">高さ</param>
+        /// <param name="StairLength1">長さ1</param>
+        /// <param name="StairLength2">長さ2</param>
+        /// <param name="StairThickness">厚さ</param>
+        /// <returns></returns>
         public static Brep[] GetStairsSimple(int Count, double StairWidth, double StairHeight, double StairLength1, double StairLength2, double StairThickness)
         {
             Brep[] result = new Brep[Count];
@@ -1445,6 +2066,18 @@ namespace kurema.RhinoTools
             return result;
         }
 
+        /// <summary>
+        /// 基本的な階段を取得します。
+        /// </summary>
+        /// <param name="Count">段数</param>
+        /// <param name="StairWidth">階段の幅</param>
+        /// <param name="StairHeight">階段の高さ</param>
+        /// <param name="StairLength1">階段の長さ1</param>
+        /// <param name="StairLength2">階段の長さ2</param>
+        /// <param name="StairThickness">階段の厚さ</param>
+        /// <param name="OtherThickness">他の厚さ</param>
+        /// <param name="Stairs">階段</param>
+        /// <param name="Other">その他</param>
         public static void GetStairsBasic(int Count, double StairWidth, double StairHeight, double StairLength1, double StairLength2, double StairThickness, double OtherThickness, out Brep[] Stairs, out Brep[] Other)
         {
             Stairs = GetStairsSimple(Count, StairWidth, StairHeight, StairLength1, StairLength2, StairThickness);
@@ -1465,6 +2098,11 @@ namespace kurema.RhinoTools
             Other = new Brep[] { otherSrf1, otherSrf2 };
         }
 
+        /// <summary>
+        /// 線に沿って点字ブロック(視覚障害者誘導用ブロック)を配置します。
+        /// </summary>
+        /// <param name="Target">参照する線</param>
+        /// <returns>結果</returns>
         public static Brep[] GetTactilePavingAlongCurve(Curve[] Target)
         {
             double UnitSize = 302.5;
@@ -1542,11 +2180,26 @@ namespace kurema.RhinoTools
         }
          */
 
+        /// <summary>
+        /// 点字ブロック(視覚障害者誘導用ブロック)の点ブロックを得ます。
+        /// </summary>
+        /// <returns>結果</returns>
         public static Brep GetTactilePavingPoint()
         {
             return GetTactilePavingPoint(300, 5, 12, 22, 5, 60, 5);
         }
 
+        /// <summary>
+        /// 点字ブロック(視覚障害者誘導用ブロック)の点ブロックを得ます。
+        /// </summary>
+        /// <param name="BlockSize">ブロックサイズ</param>
+        /// <param name="PointCount">点の数</param>
+        /// <param name="PointSizeTop">点の上部での半径</param>
+        /// <param name="PointSizeBottom">点の下部での半径</param>
+        /// <param name="PointHeight">点の高さ</param>
+        /// <param name="PointSpace">点の感覚</param>
+        /// <param name="BlockThickness">ブロックの厚さ</param>
+        /// <returns>結果</returns>
         public static Brep GetTactilePavingPoint(double BlockSize, int PointCount, double PointSizeTop, double PointSizeBottom, double PointHeight, double PointSpace, double BlockThickness)
         {
             Brep[] Result = new Brep[1 + PointCount * PointCount];
@@ -1571,11 +2224,27 @@ namespace kurema.RhinoTools
             return (Brep.CreateBooleanUnion(Result, PointSizeTop / 100.0))[0];
         }
 
+        /// <summary>
+        /// 点字ブロック(視覚障害者誘導用ブロック)の線ブロックを得ます。
+        /// </summary>
+        /// <returns>結果</returns>
         public static Brep GetTactilePavingLine()
         {
             return GetTactilePavingLine(300, 4, 17, 27, 270, 5, 75, 5);
         }
 
+        /// <summary>
+        /// 点字ブロック(視覚障害者誘導用ブロック)の線ブロックを得ます。
+        /// </summary>
+        /// <param name="BlockSize">ブロックサイズ</param>
+        /// <param name="LineCount">線の数</param>
+        /// <param name="LineWidthTop">線の上部での幅</param>
+        /// <param name="LineWidthBottom">線の下部での幅</param>
+        /// <param name="LineLength">線の長さ</param>
+        /// <param name="LineHeight">線の高さ</param>
+        /// <param name="LineSpace">線の間隔</param>
+        /// <param name="BlockThickness">ブロックの厚さ</param>
+        /// <returns>結果</returns>
         public static Brep GetTactilePavingLine(double BlockSize, int LineCount, double LineWidthTop, double LineWidthBottom, double LineLength, double LineHeight, double LineSpace, double BlockThickness)
         {
             LineLength -= LineWidthTop;
@@ -1612,6 +2281,12 @@ namespace kurema.RhinoTools
             return (Brep.CreateBooleanUnion(Result, LineWidthTop / 100.0))[0];
         }
 
+        /// <summary>
+        /// 線に太さを与えます。
+        /// </summary>
+        /// <param name="Origin">元の線</param>
+        /// <param name="Width">太さ</param>
+        /// <returns>結果</returns>
         public static Curve[] TrimOutline(Curve[] Origin, double[] Width)
         {
             Curve[] OutlineCurve = new Curve[Origin.GetLength(0)];
@@ -1648,6 +2323,12 @@ namespace kurema.RhinoTools
             return TotalResult.ToArray();
         }
 
+        /// <summary>
+        /// 線を線で切断します。
+        /// </summary>
+        /// <param name="Origin">元の線</param>
+        /// <param name="Cutter">切断する線</param>
+        /// <returns>結果</returns>
         public static Curve[] TrimCurveByOutline(Curve Origin, Curve Cutter)
         {
             Origin.Domain = new Interval(0, 1);
@@ -1710,6 +2391,12 @@ namespace kurema.RhinoTools
             return Curve.CreateBooleanUnion(OutlineCurveBase);
         }
 
+        /// <summary>
+        /// 複数の線に太さを与えます。
+        /// </summary>
+        /// <param name="Origin">線</param>
+        /// <param name="Width">太さ</param>
+        /// <returns>結果</returns>
         public static Curve[] GetOutlineSimple(Curve[] Origin, double[] Width)
         {
             Curve[] OutlineCurveBase = new Curve[Origin.GetLength(0)];
@@ -1720,6 +2407,12 @@ namespace kurema.RhinoTools
             return Curve.CreateBooleanUnion(OutlineCurveBase);
         }
 
+        /// <summary>
+        /// 線に太さを与えます。
+        /// </summary>
+        /// <param name="Origin">線</param>
+        /// <param name="Width">太さ</param>
+        /// <returns>結果</returns>
         public static Curve[] GetCurveWithWidth(Curve[] Origin, double Width)
         {
             Curve[] Result = new Curve[Origin.GetLength(0)];
@@ -1730,6 +2423,12 @@ namespace kurema.RhinoTools
             return Result;
         }
 
+        /// <summary>
+        /// 線に太さを与えます。
+        /// </summary>
+        /// <param name="Origin">線</param>
+        /// <param name="Width">太さ</param>
+        /// <returns>結果</returns>
         public static Curve GetCurveWithWidth(Curve Origin, double Width)
         {
             Width /= 2;
@@ -1739,6 +2438,12 @@ namespace kurema.RhinoTools
             return (Curve.JoinCurves(new Curve[] { cv1, cv2, NurbsCurve.CreateFromLine(new Line(cv1.PointAtEnd, cv2.PointAtEnd)), NurbsCurve.CreateFromLine(new Line(cv1.PointAtStart, cv2.PointAtStart)) }))[0];
         }
 
+        /// <summary>
+        /// 線に太さを与えます。端は丸くします。
+        /// </summary>
+        /// <param name="Origin">線</param>
+        /// <param name="Width">太さ</param>
+        /// <returns>結果</returns>
         public static Curve[] GetCurveWithWidthRound(Curve[] Origin, double Width)
         {
             Curve[] Result = new Curve[Origin.GetLength(0)];
@@ -1749,6 +2454,12 @@ namespace kurema.RhinoTools
             return Result;
         }
 
+        /// <summary>
+        /// 線に太さを与えます。端は丸くします。
+        /// </summary>
+        /// <param name="Origin">線</param>
+        /// <param name="Width">太さ</param>
+        /// <returns>結果</returns>
         public static Curve GetCurveWithWidthRound(Curve Origin, double Width)
         {
             Width /= 2;
@@ -1760,7 +2471,12 @@ namespace kurema.RhinoTools
             return (Curve.JoinCurves(new Curve[] { cv1, cv2, NurbsCurve.CreateFromArc(new Arc(cv1.PointAtEnd, cv1.TangentAt(1.0), cv2.PointAtEnd)), NurbsCurve.CreateFromArc(new Arc(cv1.PointAtStart, cv1.TangentAt(0.0), cv2.PointAtStart)) }))[0];
         }
 
-
+        /// <summary>
+        /// 線を点線にします。
+        /// </summary>
+        /// <param name="Origin">線</param>
+        /// <param name="SegmentLength">点線の間隔</param>
+        /// <returns>結果</returns>
         public static Curve[] GetDashedLine(Curve Origin, double SegmentLength)
         {
             int Count = (int)Math.Floor(Origin.GetLength() / SegmentLength / 2.0);

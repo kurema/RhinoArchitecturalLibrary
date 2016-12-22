@@ -18,13 +18,29 @@ using System.Runtime.InteropServices;
 
 namespace kurema.RhinoTools
 {
+    /// <summary>
+    /// 図面を示します。レイヤー設定付きでBake可能です。
+    /// </summary>
     public class PlanObject
     {
+        /// <summary>
+        /// 建築全体の図面を示します。
+        /// </summary>
         public class Building
         {
+            /// <summary>
+            /// 名前
+            /// </summary>
             public String Name;
+            /// <summary>
+            /// 建築に含まれる階層。
+            /// </summary>
             public List<Floor> Content = new List<Floor>();
 
+            /// <summary>
+            /// 図面を曲線として取得します。
+            /// </summary>
+            /// <returns></returns>
             public Curve[] GetCurve()
             {
                 List<Curve> Result = new List<Curve>();
@@ -35,6 +51,10 @@ namespace kurema.RhinoTools
                 return Result.ToArray();
             }
 
+            /// <summary>
+            /// Transformを適用します。
+            /// </summary>
+            /// <param name="Tf">Transform</param>
             public void Transform(Transform Tf)
             {
                 List<Floor> Operated = new List<Floor>();
@@ -48,12 +68,21 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// Bake(Rhino Documentに出力)します。
+            /// </summary>
+            /// <param name="RhinoDocument">出力先</param>
+            /// <param name="TargetFloor">対象階層</param>
             public void Bake(RhinoDoc RhinoDocument, int TargetFloor)
             {
                 Content[TargetFloor].Bake(RhinoDocument, this.Name + ":");
 
             }
 
+            /// <summary>
+            /// 複製します
+            /// </summary>
+            /// <returns>複製結果</returns>
             public Building Duplicate()
             {
                 Building Result = new Building(this.Name);
@@ -64,19 +93,39 @@ namespace kurema.RhinoTools
                 return Result;
             }
 
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            /// <param name="Name">名前</param>
             public Building(string Name)
             {
                 this.Name = Name;
             }
         }
 
+        /// <summary>
+        /// 一階層分の平面図を示します。
+        /// </summary>
         public class Floor
         {
+            /// <summary>
+            /// 階層の名前
+            /// </summary>
             public String Name;
+            /// <summary>
+            /// 階高
+            /// </summary>
             public double Height;
+            /// <summary>
+            /// 階層に含まれる部材の平面図を示します。
+            /// </summary>
             public List<Member> Content = new List<Member>();
 
-
+            /// <summary>
+            /// Bake(Rhino Documentに出力)します。
+            /// </summary>
+            /// <param name="RhinoDocument">出力先</param>
+            /// <param name="LayerNameHead">出力時のレイヤー名の先端部分</param>
             public void Bake(RhinoDoc RhinoDocument, string LayerNameHead)
             {
                 for (int i = 0; i < Content.Count(); i++)
@@ -85,6 +134,10 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// Transformを適用します。
+            /// </summary>
+            /// <param name="Tf">Transform</param>
             public void Transform(Transform Tf)
             {
                 for (int i = 0; i < Content.Count(); i++)
@@ -93,6 +146,10 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// 平面図を曲線の集合として取得します。
+            /// </summary>
+            /// <returns>曲線</returns>
             public Curve[] GetCurve()
             {
                 List<Curve> Result = new List<Curve>();
@@ -103,6 +160,10 @@ namespace kurema.RhinoTools
                 return Result.ToArray();
             }
 
+            /// <summary>
+            /// 複製します。
+            /// </summary>
+            /// <returns>複製結果</returns>
             public Floor Duplicate()
             {
                 Floor Result = new Floor(this.Name);
@@ -114,21 +175,44 @@ namespace kurema.RhinoTools
                 return Result;
             }
 
+            /// <summary>
+            /// コンストラクタ。
+            /// </summary>
+            /// <param name="Name">名前</param>
             public Floor(string Name)
             {
                 this.Name = Name;
             }
         }
 
+        /// <summary>
+        /// 部材の平面図を示します。
+        /// ここでの部材は平面図に描かれる建築の要素全てを含みます。
+        /// </summary>
         public class Member
         {
+            /// <summary>
+            /// 部材名
+            /// </summary>
             public String Name;
 
+            /// <summary>
+            /// 場所を示します。
+            /// </summary>
             public Point2d Point;
+            /// <summary>
+            /// 平面図の線を含みます。
+            /// </summary>
             public List<Curve> Content = new List<Curve>();
+            /// <summary>
+            /// 出力時の色を設定します。
+            /// </summary>
             public RealObject.Color Color = new RealObject.Color();
 
-
+            /// <summary>
+            /// 平面図を出力します。
+            /// </summary>
+            /// <returns>平面図</returns>
             public Curve[] GetCurve()
             {
                 Curve[] Result = new Curve[Content.Count()];
@@ -139,6 +223,10 @@ namespace kurema.RhinoTools
                 return Result;
             }
 
+            /// <summary>
+            /// 複製します。
+            /// </summary>
+            /// <returns>複製結果</returns>
             public Member Duplicate()
             {
                 Member Result = new Member(this.Name);
@@ -151,6 +239,10 @@ namespace kurema.RhinoTools
                 return Result;
             }
 
+            /// <summary>
+            /// Transformを適用します。
+            /// </summary>
+            /// <param name="Tf">Transform</param>
             public void Transform(Transform Tf)
             {
                 for (int i = 0; i < Content.Count(); i++)
@@ -159,6 +251,11 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// Bake(Rhino Documentに出力)します。
+            /// </summary>
+            /// <param name="RhinoDocument">出力先</param>
+            /// <param name="LayerNameHead">レイヤー名の</param>
             public void Bake(RhinoDoc RhinoDocument, String LayerNameHead)
             {
                 string LayerName = LayerNameHead + this.Name;
@@ -177,6 +274,10 @@ namespace kurema.RhinoTools
                 }
             }
 
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            /// <param name="Name">部材名</param>
             public Member(string Name)
             {
                 this.Name = Name;
