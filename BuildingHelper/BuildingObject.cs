@@ -1525,7 +1525,7 @@ namespace kurema.RhinoTools
             /// <param name="Domain">配置される壁における範囲</param>
             /// <param name="DomainVeranda">外側のベランダの配置される壁に対する範囲</param>
             /// <param name="FloorThickness">床の厚さ</param>
-            /// <param name="FloorLength">床の長さparam>
+            /// <param name="FloorLength">床の長さ</param>
             /// <param name="SideExist1">横の手すりの有無。Domainの最小側に配置するか。</param>
             /// <param name="SideExist2">横の手すりの有無。Domainの最大側に配置するか。</param>
             public VerandaGlassSimpleWide(Interval Domain, Interval DomainVeranda, double FloorThickness, double FloorLength, bool SideExist1 = true, bool SideExist2 = true)
@@ -1547,7 +1547,7 @@ namespace kurema.RhinoTools
             }
 
             /// <summary>
-            /// 平面図を取得します。
+            /// 平面図を取得します。w
             /// </summary>
             /// <returns>平面図</returns>
             public PlanObject.Member[] GetPlan()
