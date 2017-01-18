@@ -1156,7 +1156,7 @@ namespace kurema.RhinoTools
         /// <summary>
         /// 基本的なベランダを示します。
         /// </summary>
-        public class VerandaSimple : WallAttachment
+        public class VerandaSimple : WallAttachment,ShadowObject.ShadowSingleProvider
         {
             /// <summary>
             /// 配置される壁における範囲
@@ -1253,20 +1253,31 @@ namespace kurema.RhinoTools
             public PlanObject.Member[] GetPlan()
             {
                 PlanObject.Member Result = new PlanObject.Member("Veranda");
+                Result.Content.Add(GetPlanPolyline().ToNurbsCurve());
+                return new[] { Result };
+            }
+
+            private Polyline GetPlanPolyline()
+            {
                 Polyline PL = new Polyline(4);
                 PL.Add(Domain.Min, 0, 0);
                 PL.Add(Domain.Min, -FloorLength, 0);
                 PL.Add(Domain.Max, -FloorLength, 0);
                 PL.Add(Domain.Max, 0, 0);
-                Result.Content.Add(PL.ToNurbsCurve());
-                return new[] { Result };
+                return PL;
+            }
+
+            public ShadowObject.ShadowSingle GetShadow(Vector3d direction, double height)
+            {
+                //手すりの影は省略します。
+                return ShadowObject.Helper.GetShadowFromPlan(GetPlanPolyline().ToNurbsCurve(), direction, height);
             }
         }
 
         /// <summary>
         /// ガラス手すりのベランダを示します。
         /// </summary>
-        public class VerandaGlass : WallAttachment
+        public class VerandaGlass : WallAttachment, ShadowObject.ShadowSingleProvider
         {
             /// <summary>
             /// 配置される壁における範囲
@@ -1347,20 +1358,30 @@ namespace kurema.RhinoTools
             public PlanObject.Member[] GetPlan()
             {
                 PlanObject.Member Result = new PlanObject.Member("Veranda");
+                Result.Content.Add(GetPlanPolyline().ToNurbsCurve());
+                return new[] { Result };
+            }
+            private Polyline GetPlanPolyline()
+            {
                 Polyline PL = new Polyline(4);
                 PL.Add(Domain.Min, 0, 0);
                 PL.Add(Domain.Min, -FloorLength, 0);
                 PL.Add(Domain.Max, -FloorLength, 0);
                 PL.Add(Domain.Max, 0, 0);
-                Result.Content.Add(PL.ToNurbsCurve());
-                return new[] { Result };
+                return PL;
             }
 
+            public ShadowObject.ShadowSingle GetShadow(Vector3d direction, double height)
+            {
+                //手すりの影は省略します。
+                return ShadowObject.Helper.GetShadowFromPlan(GetPlanPolyline().ToNurbsCurve(), direction, height);
+            }
         }
+
         /// <summary>
         /// 単純なガラス手すりのベランダを示します。
         /// </summary>
-        public class VerandaGlassSimple : WallAttachment
+        public class VerandaGlassSimple : WallAttachment,ShadowObject.ShadowSingleProvider
         {
             /// <summary>
             /// 配置される壁における範囲
@@ -1441,15 +1462,25 @@ namespace kurema.RhinoTools
             public PlanObject.Member[] GetPlan()
             {
                 PlanObject.Member Result = new PlanObject.Member("Veranda");
+                Result.Content.Add(GetPlanPolyline().ToNurbsCurve());
+                return new[] { Result };
+            }
+
+            private Polyline GetPlanPolyline()
+            {
                 Polyline PL = new Polyline(4);
                 PL.Add(Domain.Min, 0, 0);
                 PL.Add(Domain.Min, -FloorLength, 0);
                 PL.Add(Domain.Max, -FloorLength, 0);
                 PL.Add(Domain.Max, 0, 0);
-                Result.Content.Add(PL.ToNurbsCurve());
-                return new[] { Result };
+                return PL;
             }
 
+            public ShadowObject.ShadowSingle GetShadow(Vector3d direction, double height)
+            {
+                //手すりの影は省略します。
+                return ShadowObject.Helper.GetShadowFromPlan(GetPlanPolyline().ToNurbsCurve(), direction, height);
+            }
         }
 
         /// <summary>
