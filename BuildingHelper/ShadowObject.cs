@@ -24,34 +24,58 @@ namespace kurema.RhinoTools
     public class ShadowObject
     {
         /// <summary>
-        /// 影を提供可能です。
+        /// 単純な影を提供可能です。
         /// </summary>
         public interface ShadowSingleProvider
         {
             ShadowSingle GetShadow(Vector3d direction,double height);
         }
 
+        /// <summary>
+        /// 複合した影を提供可能です。
+        /// </summary>
         public interface ShadowCombinedProvider
         {
             ShadowCombined GetShadow(Vector3d direction, double height);
         }
 
+        /// <summary>
+        /// 影から除外される部分を提供可能です。例えば窓からの光などです。
+        /// </summary>
         public interface ShadowExclusionProvider
         {
             Curve[] GetShadowExclusion(Vector3d direction, double height);
         }
 
+        /// <summary>
+        /// 単純な影を示します。
+        /// </summary>
         public class ShadowSingle
         {
+            /// <summary>
+            /// 輪郭です。
+            /// </summary>
             public Curve Contour { get; set; }
+            /// <summary>
+            /// 除外部分です。
+            /// </summary>
             public Curve[] ExcludedArea { get; set; }
 
+            /// <summary>
+            /// コンストラクタ。
+            /// </summary>
+            /// <param name="Contour">輪郭</param>
             public ShadowSingle(Curve Contour)
             {
                 this.Contour = Contour;
                 this.ExcludedArea = new Curve[0];
             }
 
+            /// <summary>
+            /// コンストラクタ。
+            /// </summary>
+            /// <param name="Contour">輪郭</param>
+            /// <param name="ExcludedArea">除外部分</param>
             public ShadowSingle(Curve Contour,Curve[] ExcludedArea)
             {
                 this.Contour = Contour;
@@ -59,12 +83,25 @@ namespace kurema.RhinoTools
             }
         }
 
+        /// <summary>
+        /// 複合した影を示します。
+        /// </summary>
         public class ShadowCombined
         {
+            /// <summary>
+            /// それぞれ離れた輪郭線を示します。
+            /// </summary>
             public Curve[] Contours { get { return _Contours.ToArray(); } }
             private Curve[] _Contours = new Curve[0];
+            /// <summary>
+            /// 除外部分を示します。
+            /// </summary>
             public Curve[] ExcludedArea { get; private set; }
 
+            /// <summary>
+            /// 影を追加します。
+            /// </summary>
+            /// <param name="arg">影</param>
             public void Add(ShadowSingle arg)
             {
                 var temp = _Contours.ToList();
@@ -100,8 +137,18 @@ namespace kurema.RhinoTools
             }
         }
 
+        /// <summary>
+        /// 影に関する補助機能を提供します。
+        /// </summary>
         public static class Helper
         {
+            /// <summary>
+            /// 光の方向から平面図による影を適切に配置します。
+            /// </summary>
+            /// <param name="Plan">平面図</param>
+            /// <param name="direction">入射方向</param>
+            /// <param name="height">影の高さ</param>
+            /// <returns>影</returns>
             public static ShadowSingle GetShadowFromPlan(Curve Plan, Vector3d direction, double height)
             {
                 var horizontalDirection = GetTranslationDirection(direction, height);
@@ -111,6 +158,12 @@ namespace kurema.RhinoTools
                 return new ShadowSingle(pl);
             }
 
+            /// <summary>
+            /// 光の方向と高さからずれ方向を返します。
+            /// </summary>
+            /// <param name="direction">入射方向</param>
+            /// <param name="height">高さ</param>
+            /// <returns>方向</returns>
             public static Vector3d? GetTranslationDirection(Vector3d direction, double height)
             {
                 if (Math.Sign(height) != Math.Sign(direction.Z)) { return null; }
