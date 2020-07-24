@@ -5,5 +5,13 @@ This includes lots of functions.
 ## How to use
 Get gh file in Release, then write a small code using included C# component.
 
-## Samples
+## Gallery
+![rail](img/000.jpeg)
+![tower](img/006.jpeg)
+![clock](img/012.jpeg)
+![doll](img/People.7.jpeg)
+![doll](img/People.8.jpeg)
+![tree](img/tree3.jpeg )
+
+## Sample Project
 You can see how much this can do [here](https://github.com/kurema/CellTower).
