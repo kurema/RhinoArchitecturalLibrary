@@ -2,6 +2,8 @@
 Architectural library for Rhino Common SDK.
 This includes lots of functions.
 
+[日本語](README.ja.md)
+
 ## How to use
 Get gh file in Release, then write a small code using included C# component.
 
