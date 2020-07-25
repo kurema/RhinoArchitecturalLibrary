@@ -8,7 +8,7 @@ This includes lots of functions.
 You can see how much this can do [here](https://github.com/kurema/CellTower).
 
 ## How to use
-Get gh file in Release, then write a small code using included C# component.
+Get gh file in [Release](https://github.com/kurema/RhinoArchitecturalLibrary/releases), then write a small code using included C# component.
 
 ## Gallery
 ![rail](img/000.jpeg)
