@@ -4,6 +4,9 @@ This includes lots of functions.
 
 [日本語](README.ja.md)
 
+## Sample Project
+You can see how much this can do [here](https://github.com/kurema/CellTower).
+
 ## How to use
 Get gh file in Release, then write a small code using included C# component.
 
@@ -15,5 +18,4 @@ Get gh file in Release, then write a small code using included C# component.
 ![doll](img/People.8.jpeg)
 ![tree](img/tree3.jpeg )
 
-## Sample Project
-You can see how much this can do [here](https://github.com/kurema/CellTower).
+
